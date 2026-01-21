@@ -148,7 +148,7 @@ export default function AgentesStats({ selectedDepartamento, departamentos, onSe
 
   if (isLoading) {
     return (
-      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 min-w-[180px]">
+      <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 min-w-[300px]">
         <div className="animate-pulse">
           <div className="h-4 bg-gray-200 rounded w-20 mb-3"></div>
           <div className="space-y-3">
@@ -161,7 +161,7 @@ export default function AgentesStats({ selectedDepartamento, departamentos, onSe
   }
 
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 min-w-[200px]">
+    <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 min-w-[300px]">
       <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-gray-200">
         <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
           <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,7 +172,7 @@ export default function AgentesStats({ selectedDepartamento, departamentos, onSe
         <select
           value={selectedDepartamento?.codigo || ''}
           onChange={handleFilterChange}
-          className="px-2 py-1 text-[10px] border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 max-w-[100px]"
+          className="px-2 py-1 text-xs border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 focus:border-blue-500 w-full max-w-[160px]"
         >
           <option value="">Todos</option>
           {sortedDepartamentos.map((dept) => (

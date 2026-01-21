@@ -25,27 +25,27 @@ export default function DepartamentosPage() {
       {/* Breadcrumb */}
       <div className="container mx-auto px-4 pt-4">
         <nav className="mb-2">
-          <ol className="flex items-center space-x-2 text-sm">
+          <ol className="breadcrumb">
             <li>
-              <Link href="/" className="text-blue-600 hover:text-blue-800">
+              <Link href="/" className="breadcrumb-link">
                 Inicio
               </Link>
             </li>
-            <li className="text-gray-400">/</li>
+            <li className="breadcrumb-separator">/</li>
             <li>
-              <Link href="/apoyo-territorio" className="text-blue-600 hover:text-blue-800">
+              <Link href="/apoyo-territorio" className="breadcrumb-link">
                 Apoyo Territorio
               </Link>
             </li>
-            <li className="text-gray-400">/</li>
-            <li className="text-gray-600 font-medium">Departamentos</li>
+            <li className="breadcrumb-separator">/</li>
+            <li className="breadcrumb-current">Departamentos</li>
           </ol>
         </nav>
       </div>
 
       {/* Contenido principal */}
       <div className="container mx-auto p-4 pt-2">
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden relative">
+        <div className="content-container relative">
           <MapaColombia
             selectedDepartamento={selectedDepartamento}
             onSelectDepartamento={handleSelectDepartamento}

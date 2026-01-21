@@ -6,8 +6,8 @@ import Navbar from '@/components/Navbar';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Mapa de Colombia - Reporte Interactivo',
-  description: 'Reporte interactivo con mapa de departamentos de Colombia',
+  title: 'Sistema de Gestión - Gerencia',
+  description: 'Sistema integral de gestión con módulos de Apoyo Territorio y Seguimiento PMO',
 };
 
 export default function RootLayout({

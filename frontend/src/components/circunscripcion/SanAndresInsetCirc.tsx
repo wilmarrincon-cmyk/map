@@ -2,22 +2,19 @@
 
 // Colores del semáforo (opaco para normal, intenso para selección)
 const SEMAFORO_COLORS = {
-  azul: { normal: '#90CAF9', intenso: '#2196F3', border: '#1565C0' },
-  verde: { normal: '#A5D6A7', intenso: '#4CAF50', border: '#388E3C' },
-  naranja: { normal: '#FFCC80', intenso: '#FF9800', border: '#F57C00' },
-  amarillo: { normal: '#FFF59D', intenso: '#FFEB3B', border: '#FBC02D' },
-  rojo: { normal: '#EF9A9A', intenso: '#F44336', border: '#D32F2F' },
-  sinDatos: { normal: '#E0E0E0', intenso: '#9E9E9E', border: '#757575' },
+  azul: { normal: '#90CAF9', intenso: '#2196F3', border: '#1565C0' },      // > 2 agentes
+  verde: { normal: '#A5D6A7', intenso: '#4CAF50', border: '#388E3C' },     // = 2 agentes
+  rojo: { normal: '#EF9A9A', intenso: '#F44336', border: '#D32F2F' },      // < 2 agentes (1)
+  gris: { normal: '#E0E0E0', intenso: '#9E9E9E', border: '#757575' },     // 0 agentes
 };
 
 // Obtener colores según cantidad de agentes
+// Criterios: > 2 = Azul, = 2 = Verde, < 2 (1) = Rojo, 0 = Gris
 const getColorsByAgentes = (cantidad: number) => {
-  if (cantidad > 10) return SEMAFORO_COLORS.azul;
-  if (cantidad === 10) return SEMAFORO_COLORS.verde;
-  if (cantidad >= 7 && cantidad <= 9) return SEMAFORO_COLORS.naranja;
-  if (cantidad >= 4 && cantidad <= 6) return SEMAFORO_COLORS.amarillo;
-  if (cantidad >= 1 && cantidad <= 3) return SEMAFORO_COLORS.rojo;
-  return SEMAFORO_COLORS.sinDatos;
+  if (cantidad > 2) return SEMAFORO_COLORS.azul;
+  if (cantidad === 2) return SEMAFORO_COLORS.verde;
+  if (cantidad === 1) return SEMAFORO_COLORS.rojo;
+  return SEMAFORO_COLORS.gris; // 0 agentes
 };
 
 interface SanAndresInsetCircProps {

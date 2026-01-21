@@ -18,7 +18,10 @@ export default function Navbar() {
       <div className="container mx-auto px-6">
         <div className="flex items-center justify-between py-4">
           {/* Logo / Título */}
-          <Link href="/" className="text-xl font-bold hover:text-white/90 transition-colors">
+          <Link 
+            href="/" 
+            className="text-xl font-bold hover:text-white/90 transition-colors duration-200"
+          >
             Sistema de Gestión
           </Link>
 
@@ -27,9 +30,9 @@ export default function Navbar() {
             {/* Inicio */}
             <Link
               href="/"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isHome
-                  ? 'bg-white/20 text-white'
+                  ? 'bg-white/20 text-white shadow-md'
                   : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -39,9 +42,9 @@ export default function Navbar() {
             {/* Apoyo Territorio */}
             <Link
               href="/apoyo-territorio"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isApoyoTerritorio
-                  ? 'bg-white/20 text-white'
+                  ? 'bg-white/20 text-white shadow-md'
                   : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`}
             >
@@ -51,9 +54,9 @@ export default function Navbar() {
             {/* Seguimiento PMO */}
             <Link
               href="/seguimiento-pmo"
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
                 isSeguimientoPMO
-                  ? 'bg-white/20 text-white'
+                  ? 'bg-white/20 text-white shadow-md'
                   : 'text-white/80 hover:bg-white/10 hover:text-white'
               }`}
             >

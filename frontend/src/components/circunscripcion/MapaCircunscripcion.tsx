@@ -8,12 +8,10 @@ import SanAndresInsetCirc from './SanAndresInsetCirc';
 
 // Colores del semáforo según cantidad de agentes (opaco para normal, intenso para selección)
 const SEMAFORO_COLORS = {
-  azul: { normal: '#90CAF9', intenso: '#2196F3', border: '#1565C0' },      // > 10 agentes
-  verde: { normal: '#A5D6A7', intenso: '#4CAF50', border: '#388E3C' },     // = 10 agentes
-  naranja: { normal: '#FFCC80', intenso: '#FF9800', border: '#F57C00' },   // 7-9 agentes
-  amarillo: { normal: '#FFF59D', intenso: '#FFEB3B', border: '#FBC02D' },  // 4-6 agentes
-  rojo: { normal: '#EF9A9A', intenso: '#F44336', border: '#D32F2F' },      // <= 3 agentes
-  sinDatos: { normal: '#E0E0E0', intenso: '#9E9E9E', border: '#757575' },  // Sin datos
+  azul: { normal: '#90CAF9', intenso: '#2196F3', border: '#1565C0' },      // > 2 agentes
+  verde: { normal: '#A5D6A7', intenso: '#4CAF50', border: '#388E3C' },     // = 2 agentes
+  rojo: { normal: '#EF9A9A', intenso: '#F44336', border: '#D32F2F' },      // < 2 agentes (1)
+  gris: { normal: '#E0E0E0', intenso: '#9E9E9E', border: '#757575' },     // 0 agentes
 };
 
 const COLORS = {
@@ -56,13 +54,12 @@ const getDeptCode = (feature: any) => {
 };
 
 // Obtener colores según cantidad de agentes (retorna objeto con normal, intenso y border)
+// Criterios: > 2 = Azul, = 2 = Verde, < 2 (1) = Rojo, 0 = Gris
 const getColorsByAgentes = (cantidad: number) => {
-  if (cantidad > 10) return SEMAFORO_COLORS.azul;
-  if (cantidad === 10) return SEMAFORO_COLORS.verde;
-  if (cantidad >= 7 && cantidad <= 9) return SEMAFORO_COLORS.naranja;
-  if (cantidad >= 4 && cantidad <= 6) return SEMAFORO_COLORS.amarillo;
-  if (cantidad >= 1 && cantidad <= 3) return SEMAFORO_COLORS.rojo;
-  return SEMAFORO_COLORS.sinDatos;
+  if (cantidad > 2) return SEMAFORO_COLORS.azul;
+  if (cantidad === 2) return SEMAFORO_COLORS.verde;
+  if (cantidad === 1) return SEMAFORO_COLORS.rojo;
+  return SEMAFORO_COLORS.gris; // 0 agentes
 };
 
 // Componente interno del mapa (se carga dinámicamente)
@@ -71,13 +68,13 @@ function MapaLeaflet({
   onSelectCircunscripcion,
   geoJsonData,
   circunscripcionesRef,
-  agentesPorDepto,
+  agentesPorCitrepDepto,
 }: {
   selectedCircunscripcion: Circunscripcion | null;
   onSelectCircunscripcion: (circunscripcion: Circunscripcion | null) => void;
   geoJsonData: any;
   circunscripcionesRef: React.MutableRefObject<Circunscripcion[]>;
-  agentesPorDepto: Map<string, number>;
+  agentesPorCitrepDepto: Array<{ citrep: string; departamento: string; cantidad: number }>;
 }) {
   const { MapContainer, GeoJSON } = require('react-leaflet');
 
@@ -88,29 +85,92 @@ function MapaLeaflet({
   } : null;
 
   // Key única para forzar re-render del GeoJSON cuando cambia la selección
-  const geoJsonKey = `geojson-circ-${selectedCircunscripcion?.id_circunscripcion || 'none'}-${agentesPorDepto.size}`;
+  // Incluye el citrep seleccionado para que se actualicen los colores
+  const geoJsonKey = `geojson-circ-${selectedCircunscripcion?.citrep || 'none'}-${agentesPorCitrepDepto.length}`;
 
-  // Obtener cantidad de agentes para un departamento
-  const getAgentesCount = (deptName: string): number => {
+  // Verificar si un departamento tiene circunscripciones asociadas
+  const tieneCircunscripciones = (deptName: string): boolean => {
     const normalizedName = normalizeText(deptName);
-    const entries = Array.from(agentesPorDepto.entries());
-    for (const [key, value] of entries) {
-      if (normalizeText(key) === normalizedName) {
-        return value;
-      }
-    }
-    return 0;
+    return circunscripcionesRef.current.some(
+      c => normalizeText(c.departamento || '') === normalizedName
+    );
   };
 
-  // Estilo para cada departamento
+  // Obtener todas las citreps de un departamento
+  const getCitrepsDelDepto = (deptName: string): string[] => {
+    const normalizedName = normalizeText(deptName);
+    const citreps = circunscripcionesRef.current
+      .filter(c => normalizeText(c.departamento || '') === normalizedName)
+      .map(c => c.citrep)
+      .filter(Boolean);
+    // Eliminar duplicados y ordenar
+    return Array.from(new Set(citreps)).sort();
+  };
+
+  // Obtener el citrep principal de un departamento (primera citrep para color por defecto)
+  const getCitrepPrincipalDelDepto = (deptName: string): string | null => {
+    const citreps = getCitrepsDelDepto(deptName);
+    return citreps.length > 0 ? citreps[0] : null;
+  };
+
+  // Obtener el total de agentes de una citrep (suma de todos sus departamentos)
+  // Usa la relación citrep-departamento del backend
+  const getAgentesCountPorCitrep = (citrep: string): number => {
+    if (!citrep) return 0;
+    
+    // Sumar agentes de todos los registros que tienen este citrep
+    // (agrupados por citrep-departamento en el backend)
+    const totalAgentes = agentesPorCitrepDepto
+      .filter(item => item.citrep === citrep)
+      .reduce((sum, item) => sum + item.cantidad, 0);
+    
+    return totalAgentes;
+  };
+
+  // Obtener cantidad de agentes para un departamento (basado en su citrep principal)
+  // Todos los departamentos de la misma citrep retornan el mismo valor (suma total)
+  const getAgentesCount = (deptName: string): number => {
+    const citrep = getCitrepPrincipalDelDepto(deptName);
+    if (!citrep) return 0;
+    
+    // Retornar el total de agentes de la citrep (suma de todos sus departamentos)
+    return getAgentesCountPorCitrep(citrep);
+  };
+
+  // Estilo para cada departamento (mismo color para todos los deptos de la misma citrep)
   const getStyle = (feature: any) => {
     const deptName = getDeptName(feature);
     
-    // Verificar si el departamento seleccionado corresponde a esta circunscripción
-    const isSelected = selectedCircunscripcion?.departamento && 
-      normalizeText(selectedCircunscripcion.departamento) === normalizeText(deptName);
+    // Verificar si el departamento tiene circunscripciones
+    const tieneCirc = tieneCircunscripciones(deptName);
     
-    const agentesCount = getAgentesCount(deptName);
+    // Si no tiene circunscripciones, mostrar en blanco
+    if (!tieneCirc) {
+      return {
+        fillColor: '#FFFFFF', // Blanco
+        weight: 1,
+        opacity: 1,
+        color: '#CCCCCC', // Borde gris claro
+        fillOpacity: 1,
+      };
+    }
+    
+    // Obtener todas las citreps de este departamento
+    const citreps = getCitrepsDelDepto(deptName);
+    const citrepPrincipal = citreps.length > 0 ? citreps[0] : null;
+    
+    // Verificar si este departamento pertenece a la citrep seleccionada
+    // Si el departamento pertenece a múltiples citreps, se resalta si alguna coincide
+    const isSelected = selectedCircunscripcion?.citrep && 
+      citreps.includes(selectedCircunscripcion.citrep);
+    
+    // Si está seleccionado, usar la citrep seleccionada; si no, usar la principal
+    const citrepParaColor = isSelected && selectedCircunscripcion?.citrep 
+      ? selectedCircunscripcion.citrep 
+      : citrepPrincipal;
+    
+    // Obtener el total de agentes de la citrep (suma de todos sus departamentos)
+    const agentesCount = citrepParaColor ? getAgentesCountPorCitrep(citrepParaColor) : 0;
     const colors = getColorsByAgentes(agentesCount);
     
     return {
@@ -125,30 +185,52 @@ function MapaLeaflet({
   // Eventos para cada feature
   const onEachFeature = (feature: any, layer: any) => {
     const deptName = getDeptName(feature);
-    const agentesCount = getAgentesCount(deptName);
+    const citreps = getCitrepsDelDepto(deptName);
+    const tieneCirc = tieneCircunscripciones(deptName);
     
-    // Contar circunscripciones del departamento
-    const circunscripcionesDepto = circunscripcionesRef.current.filter(
-      c => normalizeText(c.departamento || '') === normalizeText(deptName)
-    );
+    // Construir tooltip con información de todas las citreps
+    let tooltipContent = `${deptName}`;
     
-    // Tooltip con nombre, circunscripciones y cantidad de agentes
-    layer.bindTooltip(
-      `${deptName}<br/><b>${circunscripcionesDepto.length} circunscripciones</b><br/>${agentesCount} agentes`, 
-      {
-        permanent: false,
-        direction: 'center',
-        className: 'dept-tooltip',
+    if (tieneCirc && citreps.length > 0) {
+      if (citreps.length === 1) {
+        // Una sola citrep
+        const citrep = citreps[0];
+        const agentesCount = getAgentesCountPorCitrep(citrep);
+        tooltipContent += `<br/><b>CITREP: ${citrep}</b><br/>Total: ${agentesCount} agentes`;
+      } else {
+        // Múltiples citreps
+        tooltipContent += `<br/><b>Pertenece a ${citreps.length} CITREPs:</b>`;
+        citreps.forEach(citrep => {
+          const agentesCount = getAgentesCountPorCitrep(citrep);
+          tooltipContent += `<br/>• ${citrep}: ${agentesCount} agentes`;
+        });
       }
-    );
+    } else {
+      tooltipContent += `<br/><b>Sin circunscripciones</b>`;
+    }
+    
+    layer.bindTooltip(tooltipContent, {
+      permanent: false,
+      direction: 'center',
+      className: 'dept-tooltip',
+    });
 
     // Eventos
     layer.on({
       mouseover: (e: any) => {
         const targetLayer = e.target;
-        const isSelected = selectedCircunscripcion?.departamento && 
-          normalizeText(selectedCircunscripcion.departamento) === normalizeText(deptName);
-        if (!isSelected) {
+        const citreps = getCitrepsDelDepto(deptName);
+        const isSelected = selectedCircunscripcion?.citrep && 
+          citreps.includes(selectedCircunscripcion.citrep);
+        
+        // Si no tiene circunscripciones, mantener blanco con borde más oscuro
+        if (!tieneCirc) {
+          targetLayer.setStyle({
+            fillColor: '#F5F5F5', // Gris muy claro al hover
+            weight: 2,
+            color: '#999999',
+          });
+        } else if (!isSelected) {
           targetLayer.setStyle({
             fillColor: COLORS.hover,
             weight: 2,
@@ -157,31 +239,54 @@ function MapaLeaflet({
       },
       mouseout: (e: any) => {
         const targetLayer = e.target;
-        const isSelected = selectedCircunscripcion?.departamento && 
-          normalizeText(selectedCircunscripcion.departamento) === normalizeText(deptName);
-        const colors = getColorsByAgentes(agentesCount);
-        targetLayer.setStyle({
-          fillColor: isSelected ? colors.intenso : colors.normal,
-          weight: isSelected ? 3 : 1,
-          color: isSelected ? colors.border : COLORS.border,
-          fillOpacity: isSelected ? 0.9 : 0.7,
-        });
+        const citreps = getCitrepsDelDepto(deptName);
+        const isSelected = selectedCircunscripcion?.citrep && 
+          citreps.includes(selectedCircunscripcion.citrep);
+        
+        // Si no tiene circunscripciones, volver a blanco
+        if (!tieneCirc) {
+          targetLayer.setStyle({
+            fillColor: '#FFFFFF',
+            weight: 1,
+            color: '#CCCCCC',
+            fillOpacity: 1,
+          });
+        } else {
+          // Determinar qué citrep usar para el color
+          const citrepParaColor = isSelected && selectedCircunscripcion?.citrep 
+            ? selectedCircunscripcion.citrep 
+            : (citreps.length > 0 ? citreps[0] : null);
+          
+          const agentesCount = citrepParaColor ? getAgentesCountPorCitrep(citrepParaColor) : 0;
+          const colors = getColorsByAgentes(agentesCount);
+          
+          targetLayer.setStyle({
+            fillColor: isSelected ? colors.intenso : colors.normal,
+            weight: isSelected ? 3 : 1,
+            color: isSelected ? colors.border : COLORS.border,
+            fillOpacity: isSelected ? 0.9 : 0.7,
+          });
+        }
       },
       click: () => {
-        // Buscar la primera circunscripción del departamento
+        // Solo permitir clic si tiene circunscripciones
+        if (!tieneCirc || citreps.length === 0) {
+          return;
+        }
+        
+        // Si tiene múltiples citreps, seleccionar la primera
+        // Si está seleccionada una citrep y el departamento la incluye, mantenerla
+        const citrepParaSeleccionar = selectedCircunscripcion?.citrep && citreps.includes(selectedCircunscripcion.citrep)
+          ? selectedCircunscripcion.citrep
+          : citreps[0];
+        
+        // Buscar la primera circunscripción con este citrep
         const circ = circunscripcionesRef.current.find(
-          (c) => normalizeText(c.departamento || '') === normalizeText(deptName)
+          (c) => c.citrep === citrepParaSeleccionar
         );
         
         if (circ) {
           onSelectCircunscripcion(circ);
-        } else {
-          // Si no hay circunscripción, crear una temporal con el departamento
-          onSelectCircunscripcion({
-            id_circunscripcion: 0,
-            circunscripcion: deptName,
-            departamento: deptName,
-          });
         }
       },
     });
@@ -236,7 +341,8 @@ export default function MapaCircunscripcion({
   const [geoJsonData, setGeoJsonData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [agentesPorDepto, setAgentesPorDepto] = useState<Map<string, number>>(new Map());
+  // Mantener la relación citrep-departamento-cantidad
+  const [agentesPorCitrepDepto, setAgentesPorCitrepDepto] = useState<Array<{ citrep: string; departamento: string; cantidad: number }>>([]);
   const circunscripcionesRef = useRef<Circunscripcion[]>([]);
 
   // Cargar circunscripciones desde la API
@@ -254,19 +360,16 @@ export default function MapaCircunscripcion({
   }, [onCircunscripcionesLoaded]);
 
   // Cargar conteo de agentes por circunscripción/departamento
+  // Mantener la relación citrep-departamento-cantidad del backend
   useEffect(() => {
     const loadAgentes = async () => {
       try {
         const data = await fetchPersonalPorCircunscripcion();
-        const map = new Map<string, number>();
-        // Agrupar por departamento
-        data.forEach((item) => {
-          const current = map.get(item.departamento) || 0;
-          map.set(item.departamento, current + item.cantidad);
-        });
-        setAgentesPorDepto(map);
+        // Mantener la estructura completa: citrep-departamento-cantidad
+        setAgentesPorCitrepDepto(data);
       } catch (err) {
         console.error('Error cargando agentes:', err);
+        setAgentesPorCitrepDepto([]);
       }
     };
     loadAgentes();
@@ -310,15 +413,31 @@ export default function MapaCircunscripcion({
     }
   }, [selectedCircunscripcion, onSelectCircunscripcion]);
 
+  // Obtener el total de agentes de una citrep (suma de todos sus departamentos)
+  // Usa la relación citrep-departamento del backend
+  const getAgentesCountPorCitrep = (citrep: string): number => {
+    if (!citrep) return 0;
+    
+    // Sumar agentes de todos los registros que tienen este citrep
+    // (agrupados por citrep-departamento en el backend)
+    const totalAgentes = agentesPorCitrepDepto
+      .filter(item => item.citrep === citrep)
+      .reduce((sum, item) => sum + item.cantidad, 0);
+    
+    return totalAgentes;
+  };
+
   // Obtener cantidad de agentes de San Andrés
   const getSanAndresAgentes = (): number => {
-    const entries = Array.from(agentesPorDepto.entries());
-    for (const [key, value] of entries) {
-      if (normalizeText(key).includes('SAN ANDR')) {
-        return value;
-      }
-    }
-    return 0;
+    // Encontrar el citrep de San Andrés
+    const sanAndresCirc = circunscripcionesRef.current.find(
+      c => normalizeText(c.departamento || '').includes('SAN ANDR')
+    );
+    
+    if (!sanAndresCirc?.citrep) return 0;
+    
+    // Retornar el total de agentes de la citrep (suma de todos sus departamentos)
+    return getAgentesCountPorCitrep(sanAndresCirc.citrep);
   };
 
   if (error) {
@@ -362,7 +481,7 @@ export default function MapaCircunscripcion({
         onSelectCircunscripcion={onSelectCircunscripcion}
         geoJsonData={geoJsonData}
         circunscripcionesRef={circunscripcionesRef}
-        agentesPorDepto={agentesPorDepto}
+        agentesPorCitrepDepto={agentesPorCitrepDepto}
       />
       
       {/* Leyenda del semáforo - alineada con San Andrés */}
@@ -371,26 +490,18 @@ export default function MapaCircunscripcion({
         <div className="space-y-0.5 text-[9px]">
           <div className="flex items-center gap-1">
             <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: SEMAFORO_COLORS.azul.intenso }}></div>
-            <span className="text-gray-600">&gt;10</span>
+            <span className="text-gray-600">&gt;2</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: SEMAFORO_COLORS.verde.intenso }}></div>
-            <span className="text-gray-600">=10</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: SEMAFORO_COLORS.naranja.intenso }}></div>
-            <span className="text-gray-600">7-9</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: SEMAFORO_COLORS.amarillo.intenso }}></div>
-            <span className="text-gray-600">4-6</span>
+            <span className="text-gray-600">=2</span>
           </div>
           <div className="flex items-center gap-1">
             <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: SEMAFORO_COLORS.rojo.intenso }}></div>
-            <span className="text-gray-600">1-3</span>
+            <span className="text-gray-600">&lt;2</span>
           </div>
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-sm border border-gray-300" style={{ backgroundColor: SEMAFORO_COLORS.sinDatos.intenso }}></div>
+            <div className="w-2.5 h-2.5 rounded-sm border border-gray-300" style={{ backgroundColor: SEMAFORO_COLORS.gris.intenso }}></div>
             <span className="text-gray-600">0</span>
           </div>
         </div>
