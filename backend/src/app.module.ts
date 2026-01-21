@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DepartamentosModule } from './departamentos/departamentos.module';
 import { PersonalModule } from './personal/personal.module';
+import { CircunscripcionesModule } from './circunscripciones/circunscripciones.module';
+import { SeguimientoPmoModule } from './seguimiento-pmo/seguimiento-pmo.module';
 
 @Module({
   imports: [
@@ -32,6 +34,8 @@ import { PersonalModule } from './personal/personal.module';
     // Módulos
     DepartamentosModule,
     PersonalModule,
+    CircunscripcionesModule,
+    SeguimientoPmoModule,
   ],
 })
 export class AppModule {}
