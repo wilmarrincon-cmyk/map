@@ -12,6 +12,8 @@ export default function Navbar() {
   // Determinar el módulo activo
   const isApoyoTerritorio = pathname.startsWith('/apoyo-territorio');
   const isSeguimientoPMO = pathname.startsWith('/seguimiento-pmo');
+  const isKpisComponentes = pathname.startsWith('/kpis-componentes');
+  const isKpisCargos = pathname.startsWith('/kpis-cargos');
 
   return (
     <header className="bg-gradient-to-r from-blue-800 to-blue-600 text-white shadow-lg">
@@ -61,6 +63,30 @@ export default function Navbar() {
               }`}
             >
               Seguimiento PMO
+            </Link>
+
+            {/* KPIs de Componentes */}
+            <Link
+              href="/kpis-componentes"
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                isKpisComponentes
+                  ? 'bg-white/20 text-white shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              KPIs Componentes
+            </Link>
+
+            {/* KPIs de Cargos */}
+            <Link
+              href="/kpis-cargos"
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                isKpisCargos
+                  ? 'bg-white/20 text-white shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              KPIs Cargos
             </Link>
           </nav>
         </div>

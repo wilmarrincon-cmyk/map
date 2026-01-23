@@ -1,6 +1,8 @@
 import { Departamento } from '@/types/departamento';
 import { Circunscripcion, PersonalCitrep, PersonalCitrepResumen } from '@/types/circunscripcion';
 import { Entregable, ResumenPMO, FiltrosPMO } from '@/types/seguimiento-pmo';
+import { KpiSeguimiento, ResumenKpis, FiltrosKpis } from '@/types/kpis-seguimiento';
+import { IndicadorCargo, ResumenIndicadoresCargos, FiltrosIndicadoresCargos } from '@/types/indicadores-cargos';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -391,6 +393,262 @@ export async function fetchEntregablesByComponente(componente: string): Promise<
     return await response.json();
   } catch (error) {
     console.error('Error al obtener entregables por componente:', error);
+    return [];
+  }
+}
+
+// ============ API de KPIs Seguimiento ============
+
+/**
+ * Obtiene todos los KPIs de seguimiento
+ */
+export async function fetchKpisSeguimiento(): Promise<KpiSeguimiento[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs de seguimiento:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene resumen de KPIs
+ */
+export async function fetchResumenKpis(): Promise<ResumenKpis | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento/resumen`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener resumen de KPIs:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene opciones de filtros para KPIs
+ */
+export async function fetchFiltrosKpis(): Promise<FiltrosKpis | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento/filtros`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener filtros de KPIs:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene un KPI por ID
+ */
+export async function fetchKpiById(id: number): Promise<KpiSeguimiento | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPI:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene KPIs por componente
+ */
+export async function fetchKpisByComponente(componente: string): Promise<KpiSeguimiento[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento/componente/${encodeURIComponent(componente)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs por componente:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene KPIs por resultado
+ */
+export async function fetchKpisByResultado(resultado: string): Promise<KpiSeguimiento[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento/resultado/${encodeURIComponent(resultado)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs por resultado:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene KPIs por frecuencia
+ */
+export async function fetchKpisByFrecuencia(frecuencia: string): Promise<KpiSeguimiento[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-seguimiento/frecuencia/${encodeURIComponent(frecuencia)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs por frecuencia:', error);
+    return [];
+  }
+}
+
+// ============ API de Indicadores de Cargos ============
+
+/**
+ * Obtiene todos los indicadores de cargos
+ */
+export async function fetchIndicadoresCargos(): Promise<IndicadorCargo[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener indicadores de cargos:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene resumen de indicadores de cargos
+ */
+export async function fetchResumenIndicadoresCargos(): Promise<ResumenIndicadoresCargos | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos/resumen`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener resumen de indicadores de cargos:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene opciones de filtros para indicadores de cargos
+ */
+export async function fetchFiltrosIndicadoresCargos(): Promise<FiltrosIndicadoresCargos | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos/filtros`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener filtros de indicadores de cargos:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene un indicador por ID
+ */
+export async function fetchIndicadorCargoById(id: number): Promise<IndicadorCargo | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener indicador de cargo:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene indicadores por cargo
+ */
+export async function fetchIndicadoresByCargo(cargo: string): Promise<IndicadorCargo[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos/cargo/${encodeURIComponent(cargo)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener indicadores por cargo:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene indicadores por resultado
+ */
+export async function fetchIndicadoresByResultado(resultado: string): Promise<IndicadorCargo[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos/resultado/${encodeURIComponent(resultado)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener indicadores por resultado:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene indicadores por frecuencia
+ */
+export async function fetchIndicadoresByFrecuencia(frecuencia: string): Promise<IndicadorCargo[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/indicadores-cargos/frecuencia/${encodeURIComponent(frecuencia)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener indicadores por frecuencia:', error);
     return [];
   }
 }

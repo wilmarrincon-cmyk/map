@@ -5,6 +5,8 @@ import { DepartamentosModule } from './departamentos/departamentos.module';
 import { PersonalModule } from './personal/personal.module';
 import { CircunscripcionesModule } from './circunscripciones/circunscripciones.module';
 import { SeguimientoPmoModule } from './seguimiento-pmo/seguimiento-pmo.module';
+import { KpisSeguimientoModule } from './kpis-seguimiento/kpis-seguimiento.module';
+import { IndicadoresCargosModule } from './indicadores-cargos/indicadores-cargos.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { SeguimientoPmoModule } from './seguimiento-pmo/seguimiento-pmo.module';
     PersonalModule,
     CircunscripcionesModule,
     SeguimientoPmoModule,
+    KpisSeguimientoModule,
+    IndicadoresCargosModule,
   ],
 })
 export class AppModule {}
