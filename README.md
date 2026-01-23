@@ -1,6 +1,29 @@
-# Mapa de Colombia - Reporte Interactivo
+# Sistema de Gestión - Gerencia
 
-Aplicación web interactiva para visualizar el mapa de Colombia con selección de departamentos.
+Sistema integral de gestión con módulos de Apoyo Territorio, Seguimiento PMO, KPIs de Componentes y KPIs de Cargos.
+
+## 🚀 Despliegue Rápido con Docker
+
+```bash
+# 1. Configurar variables de entorno
+cp .env.example .env
+# Editar .env con tus valores
+
+# 2. Levantar todos los servicios
+docker-compose up -d --build
+
+# 3. Acceder a la aplicación
+# Frontend: http://localhost:3000
+# Backend: http://localhost:3001/api
+```
+
+Para más información sobre despliegue, consulta [DEPLOY.md](./DEPLOY.md)
+
+---
+
+## 📋 Descripción
+
+Aplicación web interactiva para visualizar el mapa de Colombia con selección de departamentos y seguimiento de indicadores.
 
 ## 🏗️ Arquitectura
 
