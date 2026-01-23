@@ -3,6 +3,7 @@ import { Circunscripcion, PersonalCitrep, PersonalCitrepResumen } from '@/types/
 import { Entregable, ResumenPMO, FiltrosPMO } from '@/types/seguimiento-pmo';
 import { KpiSeguimiento, ResumenKpis, FiltrosKpis } from '@/types/kpis-seguimiento';
 import { IndicadorCargo, ResumenIndicadoresCargos, FiltrosIndicadoresCargos } from '@/types/indicadores-cargos';
+import { KpiControlGerencia, ResumenKpisControlGerencia, FiltrosKpisControlGerencia } from '@/types/kpis-control-gerencia';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -649,6 +650,146 @@ export async function fetchIndicadoresByFrecuencia(frecuencia: string): Promise<
     return await response.json();
   } catch (error) {
     console.error('Error al obtener indicadores por frecuencia:', error);
+    return [];
+  }
+}
+
+// ============================================
+// KPIs de Control Gerencia
+// ============================================
+
+/**
+ * Obtiene todos los KPIs de Control Gerencia
+ */
+export async function fetchKpisControlGerencia(): Promise<KpiControlGerencia[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs de Control Gerencia:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene resumen de KPIs de Control Gerencia
+ */
+export async function fetchResumenKpisControlGerencia(): Promise<ResumenKpisControlGerencia> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia/resumen`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener resumen de KPIs de Control Gerencia:', error);
+    return {
+      total_kpis: 0,
+      por_estado: [],
+      por_periodicidad: [],
+      por_responsable: [],
+    };
+  }
+}
+
+/**
+ * Obtiene opciones de filtros para KPIs de Control Gerencia
+ */
+export async function fetchFiltrosKpisControlGerencia(): Promise<FiltrosKpisControlGerencia> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia/filtros`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener filtros de KPIs de Control Gerencia:', error);
+    return {
+      estados: [],
+      periodicidades: [],
+      responsables: [],
+      kpis: [],
+    };
+  }
+}
+
+/**
+ * Obtiene un KPI de Control Gerencia por ID
+ */
+export async function fetchKpiControlGerenciaById(id: number): Promise<KpiControlGerencia | null> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia/${id}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPI de Control Gerencia:', error);
+    return null;
+  }
+}
+
+/**
+ * Obtiene KPIs de Control Gerencia por estado
+ */
+export async function fetchKpisControlGerenciaByEstado(estado: string): Promise<KpiControlGerencia[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia/estado/${encodeURIComponent(estado)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs por estado:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene KPIs de Control Gerencia por periodicidad
+ */
+export async function fetchKpisControlGerenciaByPeriodicidad(periodicidad: string): Promise<KpiControlGerencia[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia/periodicidad/${encodeURIComponent(periodicidad)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs por periodicidad:', error);
+    return [];
+  }
+}
+
+/**
+ * Obtiene KPIs de Control Gerencia por responsable
+ */
+export async function fetchKpisControlGerenciaByResponsable(responsable: string): Promise<KpiControlGerencia[]> {
+  try {
+    const response = await fetch(`${API_URL}/api/kpis-control-gerencia/responsable/${encodeURIComponent(responsable)}`);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error al obtener KPIs por responsable:', error);
     return [];
   }
 }

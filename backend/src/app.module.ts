@@ -7,6 +7,7 @@ import { CircunscripcionesModule } from './circunscripciones/circunscripciones.m
 import { SeguimientoPmoModule } from './seguimiento-pmo/seguimiento-pmo.module';
 import { KpisSeguimientoModule } from './kpis-seguimiento/kpis-seguimiento.module';
 import { IndicadoresCargosModule } from './indicadores-cargos/indicadores-cargos.module';
+import { KpisControlGerenciaModule } from './kpis-control-gerencia/kpis-control-gerencia.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { IndicadoresCargosModule } from './indicadores-cargos/indicadores-cargos
     SeguimientoPmoModule,
     KpisSeguimientoModule,
     IndicadoresCargosModule,
+    KpisControlGerenciaModule,
   ],
 })
 export class AppModule {}

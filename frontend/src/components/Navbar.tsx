@@ -14,6 +14,7 @@ export default function Navbar() {
   const isSeguimientoPMO = pathname.startsWith('/seguimiento-pmo');
   const isKpisComponentes = pathname.startsWith('/kpis-componentes');
   const isKpisCargos = pathname.startsWith('/kpis-cargos');
+  const isKpisGerencia = pathname.startsWith('/kpis-gerencia');
 
   return (
     <header className="bg-gradient-to-r from-blue-800 to-blue-600 text-white shadow-lg">
@@ -87,6 +88,18 @@ export default function Navbar() {
               }`}
             >
               KPIs Cargos
+            </Link>
+
+            {/* KPIs de Control Gerencia */}
+            <Link
+              href="/kpis-gerencia"
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                isKpisGerencia
+                  ? 'bg-white/20 text-white shadow-md'
+                  : 'text-white/80 hover:bg-white/10 hover:text-white'
+              }`}
+            >
+              KPIs Gerencia
             </Link>
           </nav>
         </div>
